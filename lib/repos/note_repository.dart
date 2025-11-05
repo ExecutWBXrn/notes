@@ -34,7 +34,7 @@ class NoteRepository {
   Future<List<Note>> getNotes() async {
     try {
       final snapshot = await _getNoteCollectionReference()
-          .orderBy('createdAt')
+          .orderBy('createdAt', descending: true)
           .get();
       final data = snapshot.docs.map((note) => note.data()).toList();
       return data;
@@ -46,7 +46,7 @@ class NoteRepository {
 
   Stream<List<Note>> getNoteStream() {
     final snapshots = _getNoteCollectionReference()
-        .orderBy('createdAt')
+        .orderBy('createdAt', descending: true)
         .snapshots();
     final snapshot = snapshots.map(
       (snap) => snap.docs.map((note) => note.data()).toList(),

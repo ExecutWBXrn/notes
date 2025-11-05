@@ -54,6 +54,7 @@ class _SignInState extends ConsumerState<SignIn> {
         child: Form(
           key: _formKey,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: 15),
               Text("Email"),
@@ -90,6 +91,7 @@ class _SignInState extends ConsumerState<SignIn> {
                 },
                 child: Text("Зареєструватись"),
               ),
+              SizedBox(height: 80),
             ],
           ),
         ),

@@ -28,7 +28,7 @@ class _NoteScreenState extends ConsumerState<NoteScreen> {
           backgroundColor: Colors.purple.shade100,
           child: Container(
             width: 100,
-            height: 500,
+            height: 350,
             padding: EdgeInsets.all(15),
             child: Form(
               key: _formKey,
@@ -52,10 +52,8 @@ class _NoteScreenState extends ConsumerState<NoteScreen> {
                     },
                   ),
                   TextFormField(
-                    decoration: InputDecoration(
-                      hintText: "Ведіть свою нотатку тут",
-                    ),
-                    maxLines: 10,
+                    decoration: InputDecoration(hintText: "Ведіть нотатку тут"),
+                    maxLines: 4,
                     autofocus: true,
                     controller: _contentController,
                     validator: (v) {
@@ -138,8 +136,21 @@ class _NoteScreenState extends ConsumerState<NoteScreen> {
 
     final noteStream = ref.watch(getNotesStreamProvider);
 
+    final authRepo = ref.read(authRepositoryProvider);
+
     return Scaffold(
-      appBar: AppBar(title: Text("Notes"), centerTitle: true),
+      appBar: AppBar(
+        title: Text("Notes"),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              authRepo.signOut();
+            },
+            icon: Icon(Icons.logout),
+          ),
+        ],
+      ),
       body: Center(
         child: noteStream.when(
           data: (data) {
