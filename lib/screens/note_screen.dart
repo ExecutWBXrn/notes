@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_flutter_studying_project/providers/auth_provider.dart';
+import 'package:image_picker/image_picker.dart';
 
 class NoteScreen extends ConsumerStatefulWidget {
   const NoteScreen({super.key});
@@ -15,6 +18,25 @@ class _NoteScreenState extends ConsumerState<NoteScreen> {
   final _formKey = GlobalKey<FormState>();
   final _contentController = TextEditingController();
   final _nameController = TextEditingController();
+
+  Future<void> pickAndUploadAvatar() async {
+    final ImagePicker picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile == null) return;
+
+    final File imageFile = File(pickedFile.path);
+
+    try {
+      final avatarRepo = ref.read(avatarRepositoryProvider);
+      await avatarRepo.uploadAvatar(imageFile);
+      ref.refresh(avatarUrlProvider);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Не вдалося завантажити аватар")));
+    }
+  }
 
   Future<void> _saveNote({String? id, String? name, String? content}) async {
     try {
@@ -138,8 +160,41 @@ class _NoteScreenState extends ConsumerState<NoteScreen> {
 
     final authRepo = ref.read(authRepositoryProvider);
 
+    final getAvatar = ref.watch(avatarUrlProvider);
+
     return Scaffold(
       appBar: AppBar(
+        leading: Padding(
+          padding: EdgeInsets.all(8),
+          child: GestureDetector(
+            onTap: () {
+              pickAndUploadAvatar();
+            },
+            child: getAvatar.when(
+              data: (data) {
+                if (data == null) {
+                  return const CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.person, color: Colors.black),
+                  );
+                }
+                return CircleAvatar(backgroundImage: NetworkImage(data));
+              },
+              error: (error, s) {
+                return const CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, color: Colors.black),
+                );
+              },
+              loading: () {
+                return const CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, color: Colors.black),
+                );
+              },
+            ),
+          ),
+        ),
         title: Text("Notes"),
         centerTitle: true,
         actions: [
